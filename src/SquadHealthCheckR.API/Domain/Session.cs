@@ -8,23 +8,17 @@ internal class Session
     public Guid Id { get; private set; }
     public string Name { get; private set; }
     
-    public Guid SquadLeaderId { get; private set; }
-    public ApplicationUser SquadLeader { get; private set; }
     private readonly List<ApplicationUser> _squadMembers = [];
     public IReadOnlyCollection<ApplicationUser> SquadMembers => _squadMembers.AsReadOnly();
 
     // We leave this one open as we won't be operating on any operations on this collection
     public List<HealthIndicator> HealthIndicators { get; private set; } = [];
-
-    private readonly List<Vote> _votes = new();
-    public IReadOnlyCollection<Vote> Votes => _votes.AsReadOnly();
-
     public string InviteCode { get; private set; } = "12345";
 
     public Session(Guid? id, ApplicationUser squadLeader, string name)
     {
         Id = id ?? Guid.Empty;
-        SquadLeader = squadLeader;
+        _squadMembers.Add(squadLeader);
         Name = Guard.Against.NullOrWhiteSpace(name);
     }
 
@@ -42,9 +36,8 @@ internal class Session
 
     public void Vote(HealthIndicator healthIndicator, ApplicationUser squadMember, VoteSentiment sentiment)
     {
-        var vote = new Vote(null, healthIndicator, squadMember, sentiment);
-        _votes.Add(vote);
         // TODO: Squad member voted DE
+        healthIndicator.Vote(squadMember, sentiment);
     }
 
     // Required for Entity Framework

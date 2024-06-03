@@ -2,18 +2,18 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SquadHealthCheckR.API.Data;
+using SquadHealthCheckR.API.Domain;
 using SquadHealthCheckR.API.UseCases.Admin;
 using SquadHealthCheckR.API.UseCases.Session;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration
-    .AddJsonFile("appsettings.logging.json");
-
+    .AddJsonFile("appsettings.logging.json")
+    .AddJsonFile("appsettings.secrets.json");
 
 builder.Services.AddSerilog(cfg => { cfg.ReadFrom.Configuration(builder.Configuration); });
 
-// TODO: Add supabase as dev back-end
 builder.Services.AddDbContext<NpgsqlApplicationDbContext>(opt =>
 {
     opt.UseNpgsql(builder.Configuration.GetConnectionString("postgres"));
@@ -22,6 +22,7 @@ builder.Services.AddDbContext<NpgsqlApplicationDbContext>(opt =>
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(opt => { opt.SignIn.RequireConfirmedEmail = true; })
     .AddEntityFrameworkStores<NpgsqlApplicationDbContext>();
 
+builder.Services.AddCors();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(opt =>
 {
@@ -36,6 +37,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
 builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); });
 
 

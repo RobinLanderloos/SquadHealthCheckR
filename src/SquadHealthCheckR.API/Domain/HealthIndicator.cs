@@ -2,19 +2,30 @@
 
 namespace SquadHealthCheckR.API.Domain;
 
-public class HealthIndicator
+internal class HealthIndicator
 {
     public Guid Id { get; private set; }
+    public Guid SessionId { get; private set; }
     public string Name { get; private set; }
     public string PositiveDescription { get; private set; }
     public string NegativeDescription { get; private set; }
 
-    public HealthIndicator(Guid? id, string name, string positiveDescription, string negativeDescription)
+    private readonly List<Vote> _votes = new();
+    public IReadOnlyCollection<Vote> Votes => _votes.AsReadOnly();
+
+    public HealthIndicator(Guid? id, Guid sessionId,string name, string positiveDescription, string negativeDescription)
     {
         Id = id ?? Guid.Empty;
+        SessionId = sessionId;
         Name = Guard.Against.NullOrWhiteSpace(name);
         PositiveDescription = Guard.Against.NullOrWhiteSpace(positiveDescription);
         NegativeDescription = Guard.Against.NullOrWhiteSpace(negativeDescription);
+    }
+
+    public void Vote(ApplicationUser squadMember, VoteSentiment sentiment)
+    {
+        var vote = new Vote(this, squadMember, sentiment);
+        _votes.Add(vote);
     }
 
     // Required for EF

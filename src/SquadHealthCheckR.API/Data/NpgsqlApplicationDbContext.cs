@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using SquadHealthCheckR.API.Domain;
@@ -13,17 +12,20 @@ internal class NpgsqlApplicationDbContext : IdentityDbContext<ApplicationUser, A
 {
     public DbSet<Session> Sessions { get; set; }
 
-    public NpgsqlApplicationDbContext(DbContextOptions<NpgsqlApplicationDbContext> options) : base(options)
+    public DbSet<HealthIndicator> HealthIndicators { get; set; }
+
+    public DbSet<Vote> Votes { get; set; }
+
+    public DbSet<SquadMembersSessions> SessionApplicationUsers { get; set; }
+
+    public NpgsqlApplicationDbContext(DbContextOptions options) : base(options)
     {
+
     }
-}
 
-internal class ApplicationRole : IdentityRole<Guid>
-{
-
-}
-
-internal class ApplicationUser : IdentityUser<Guid>
-{
-
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+        builder.ApplyConfigurationsFromAssembly(typeof(NpgsqlApplicationDbContext).Assembly);
+    }
 }

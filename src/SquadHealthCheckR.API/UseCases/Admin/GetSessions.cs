@@ -32,10 +32,9 @@ internal static class GetSessions
         {
             var sessions = await _dbContext.
                 Sessions
-                .Include(x => x.SquadLeader)
                 .Include(x => x.SquadMembers)
-                .Include(x => x.Votes)
                 .Include(x => x.HealthIndicators)
+                .ThenInclude(h => h.Votes)
                 .ToListAsync(cancellationToken);
 
             return sessions;
