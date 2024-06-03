@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SquadHealthCheckR.Blazor", "src\SquadHealthCheckR.Blazor\SquadHealthCheckR.Blazor.csproj", "{BEB31541-DF2B-4564-8081-C78DC69662A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SquadHealthCheckR.API", "src\SquadHealthCheckR.API\SquadHealthCheckR.API.csproj", "{8BC4E6B6-A883-4753-A143-43306ECCC8E5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9E8DE590-8C57-4E87-ADF6-1E7E3948893A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{C1F6A7E9-EA5B-47E3-BBC5-35189335C67C}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BEB31541-DF2B-4564-8081-C78DC69662A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEB31541-DF2B-4564-8081-C78DC69662A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEB31541-DF2B-4564-8081-C78DC69662A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEB31541-DF2B-4564-8081-C78DC69662A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BC4E6B6-A883-4753-A143-43306ECCC8E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BC4E6B6-A883-4753-A143-43306ECCC8E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BC4E6B6-A883-4753-A143-43306ECCC8E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BC4E6B6-A883-4753-A143-43306ECCC8E5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BEB31541-DF2B-4564-8081-C78DC69662A3} = {9E8DE590-8C57-4E87-ADF6-1E7E3948893A}
+		{8BC4E6B6-A883-4753-A143-43306ECCC8E5} = {9E8DE590-8C57-4E87-ADF6-1E7E3948893A}
+	EndGlobalSection
+EndGlobal
