@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "tailwindcss": "^3.4.3"
+  },
+  "scripts": {
+    "watch": "start npx tailwindcss -i wwwroot/css/app.css -o wwwroot/css/app.min.css --watch && start dotnet watch",
+    "build-tailwind": "npx tailwindcss -i wwwroot/css/app.css -o wwwroot/css/app.min.css"
+  },
+  "devDependencies": {
+    "daisyui": "^4.11.1"
+  }
+}

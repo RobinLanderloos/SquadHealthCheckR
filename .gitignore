@@ -6,4 +6,6 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 
+node_modules/
+
 appsettings.secrets.json

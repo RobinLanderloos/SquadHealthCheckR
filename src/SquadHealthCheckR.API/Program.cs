@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SquadHealthCheckR.API.Data;
 using SquadHealthCheckR.API.Domain;
+using SquadHealthCheckR.API.Mailing;
 using SquadHealthCheckR.API.UseCases.Admin;
 using SquadHealthCheckR.API.UseCases.Session;
 
@@ -11,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .AddJsonFile("appsettings.logging.json")
     .AddJsonFile("appsettings.secrets.json");
-
+//https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/?view=aspnetcore-8.0
 builder.Services.AddSerilog(cfg => { cfg.ReadFrom.Configuration(builder.Configuration); });
 
 builder.Services.AddDbContext<NpgsqlApplicationDbContext>(opt =>
@@ -20,18 +21,15 @@ builder.Services.AddDbContext<NpgsqlApplicationDbContext>(opt =>
 });
 
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(opt => { opt.SignIn.RequireConfirmedEmail = true; })
-    .AddEntityFrameworkStores<NpgsqlApplicationDbContext>();
+    .AddEntityFrameworkStores<NpgsqlApplicationDbContext>()
+    .AddApiEndpoints();
+
+builder.Services.AddMailingServices(builder.Configuration);
 
 builder.Services.AddCors();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(opt =>
-{
-    opt.Cookie.HttpOnly = true;
-    opt.ExpireTimeSpan = TimeSpan.FromMinutes(5);
-    opt.LoginPath = "/auth/login";
-    opt.LogoutPath = "/auth/logout";
-    opt.SlidingExpiration = true;
-});
+builder.Services.AddAuthentication();
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -39,7 +37,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
 builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); });
-
 
 var app = builder.Build();
 
@@ -55,6 +52,8 @@ app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGroup("/account").MapIdentityApi<ApplicationUser>();
 
 app.MapGroup("/session")
     .MapCreateSessionEndpoint()
