@@ -9,3 +9,5 @@ riderModule.iml
 node_modules/
 
 appsettings.secrets.json
+
+app.min.css
