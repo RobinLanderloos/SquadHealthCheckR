@@ -1,4 +1,5 @@
-﻿<div class="navbar bg-base-100 border-b-2 border-b-gray-600">
+﻿@using SquadHealthCheckR.Auth
+<div class="navbar bg-base-100 border-b-2 border-b-gray-600">
     <div class="navbar-start">
         <div class="dropdown">
             <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -55,14 +56,28 @@
         <ThemeSelector></ThemeSelector>
         <AuthorizeView>
             <NotAuthorized>
-                <a class="btn btn-primary ml-2">Login</a>
+                <a class="btn btn-primary ml-2" @onclick="OnLoginClick">Login</a>
             </NotAuthorized>
             <Authorized>
-                Hello!
+                Hello
+                @{@context.User.Identity?.Name}
+                !
             </Authorized>
         </AuthorizeView>
     </div>
 </div>
 
 @code {
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private void OnLoginClick()
+    {
+        if (NavigationManager == null)
+        {
+            return;
+        }
+
+        NavigationManager.NavigateTo("/account/login");
+    }
+
 }
