@@ -8,6 +8,7 @@ using SquadHealthCheckR.API.Mailing;
 using SquadHealthCheckR.API.UseCases.Admin;
 using SquadHealthCheckR.API.UseCases.Session;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,7 +36,7 @@ builder.Services.AddCors(opt =>
 {
     opt.AddDefaultPolicy(cfg =>
     {
-        cfg.WithOrigins("https://localhost:7084", "http://localhost:5105/");
+        cfg.WithOrigins("http://localhost:5105/","https://localhost:7084");
         cfg.AllowAnyMethod();
         cfg.AllowAnyHeader();
         cfg.AllowCredentials();
@@ -91,6 +92,15 @@ accountGroup.MapGet("/roles", (ClaimsPrincipal user) =>
 
     return TypedResults.Json(roles);
 }).RequireAuthorization();
+accountGroup.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager, [FromBody] object? empty) =>
+{
+    if (empty is null) return Results.Unauthorized();
+
+    await signInManager.SignOutAsync();
+
+    return Results.Ok();
+
+}).RequireAuthorization();
 
 app.MapGroup("/session")
     .MapCreateSessionEndpoint()
@@ -98,8 +108,6 @@ app.MapGroup("/session")
 
 app.MapGroup("/admin")
     .MapGetSessionsEndpoint();
-
-await Task.Delay(5000);
 
 using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<NpgsqlApplicationDbContext>();

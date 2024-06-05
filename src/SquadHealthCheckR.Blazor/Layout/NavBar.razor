@@ -39,7 +39,7 @@
                     <summary>Parent</summary>
                     <ul class="p-2">
                         <li>
-                            <a>Submenu 1</a>
+                            <a>Test 1</a>
                         </li>
                         <li>
                             <a>Submenu 2</a>
@@ -59,9 +59,14 @@
                 <a class="btn btn-primary ml-2" @onclick="OnLoginClick">Login</a>
             </NotAuthorized>
             <Authorized>
-                Hello
-                @{@context.User.Identity?.Name}
-                !
+                <div class="dropdown dropdown-hover">
+                    <div tabindex="0" role="button" class="m-1">@{@context.User.Identity?.Name}</div>
+                    <ul tabindex="0" class="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-52">
+                        <li>
+                            <a class="btn btn-sm btn-accent" @onclick="OnLogoutClick">Logout</a>
+                        </li>
+                    </ul>
+                </div>
             </Authorized>
         </AuthorizeView>
     </div>
@@ -69,15 +74,21 @@
 
 @code {
     [Inject] private NavigationManager? NavigationManager { get; set; }
+    [Inject] private IAccountManagement? AccountManagement { get; set; }
 
     private void OnLoginClick()
     {
-        if (NavigationManager == null)
+        NavigationManager?.NavigateTo("/account/login");
+    }
+
+    private async Task OnLogoutClick()
+    {
+        if (AccountManagement == null)
         {
             return;
         }
 
-        NavigationManager.NavigateTo("/account/login");
+        await AccountManagement.LogoutAsync();
     }
 
 }

@@ -1,4 +1,5 @@
 @page "/account/login"
+@using SquadHealthCheckR.Auth
 @layout EmptyLayout
 
 <div class="hero min-h-screen bg-base-200">
@@ -7,18 +8,18 @@
             <div class="card-title flex justify-center items-center text-center mt-6">
                 <h1 class="text-accent text-2xl">Login to SquadHealthCheckR</h1>
             </div>
-            <form class="card-body">
+            <EditForm Model="Model" OnSubmit="LoginSubmit" FormName="login-form" class="card-body">
                 <div class="form-control">
                     <label class="label">
                         <span class="label-text">Email</span>
                     </label>
-                    <input type="email" placeholder="email" class="input input-bordered" required/>
+                    <InputText type="email" placeholder="Email" @bind-Value="Model.Email" class="input input-bordered" required/>
                 </div>
                 <div class="form-control">
                     <label class="label">
                         <span class="label-text">Password</span>
                     </label>
-                    <input type="password" placeholder="password" class="input input-bordered" required/>
+                    <InputText type="password" placeholder="Password" @bind-Value="Model.Password" class="input input-bordered" required/>
                     <label class="label">
                         <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
                     </label>
@@ -34,11 +35,39 @@
                         <a class="btn btn-outline flex-grow">Login using Google<i class="fa-brands fa-google"></i></a>
                     </div>
                 </div>
-            </form>
+            </EditForm>
         </div>
     </div>
 </div>
 
 @code {
+    [Inject] private IAccountManagement? AccountManagement { get; set; }
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private LoginModel Model { get; set; } = new();
+    private CookieAuthenticationStateProvider.FormResult FormResult { get; set; } = new();
+
+    private async Task LoginSubmit()
+    {
+        if (AccountManagement == null)
+        {
+            // Alert the user that the page is broken, best to reload or restart or something...
+            throw new InvalidOperationException("AccountManagement was not initialized");
+        }
+
+        FormResult = await AccountManagement.LoginAsync(Model.Email, Model.Password);
+
+        if (FormResult.Succeeded)
+        {
+            NavigationManager?.NavigateTo("/");
+            return;
+        }
+    }
+
+    private class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
 
 }

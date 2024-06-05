@@ -3,7 +3,7 @@
     "tailwindcss": "^3.4.3"
   },
   "scripts": {
-    "watch": "start npx tailwindcss -i wwwroot/css/app.css -o wwwroot/css/app.min.css --watch && start dotnet watch",
+    "watch": "start npx tailwindcss -i wwwroot/css/app.css -o wwwroot/css/app.min.css --watch && start dotnet watch run --launch-profile https",
     "build-tailwind": "npx tailwindcss -i wwwroot/css/app.css -o wwwroot/css/app.min.css"
   },
   "devDependencies": {
