@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -9,6 +8,8 @@ using SquadHealthCheckR.API.UseCases.Admin;
 using SquadHealthCheckR.API.UseCases.Session;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using SquadHealthCheckR.API.Auth;
+using SquadHealthCheckR.API.Bootstrapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,14 +37,21 @@ builder.Services.AddCors(opt =>
 {
     opt.AddDefaultPolicy(cfg =>
     {
-        cfg.WithOrigins("http://localhost:5105/","https://localhost:7084");
+        cfg.WithOrigins("http://localhost:5105/", "https://localhost:7084");
         cfg.AllowAnyMethod();
         cfg.AllowAnyHeader();
         cfg.AllowCredentials();
     });
 });
 
-builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme).AddIdentityCookies();
+builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme, opt =>
+{
+    opt.Events.OnRedirectToAccessDenied = c =>
+    {
+        c.Response.StatusCode = StatusCodes.Status403Forbidden;
+        return Task.FromResult<object?>(null);
+    };
+});
 
 builder.Services.AddAuthorization();
 
@@ -99,7 +107,6 @@ accountGroup.MapPost("/logout", async (SignInManager<ApplicationUser> signInMana
     await signInManager.SignOutAsync();
 
     return Results.Ok();
-
 }).RequireAuthorization();
 
 app.MapGroup("/session")
@@ -107,10 +114,15 @@ app.MapGroup("/session")
     .MapDeleteSessionEndpoint();
 
 app.MapGroup("/admin")
-    .MapGetSessionsEndpoint();
+    .MapGetSessionsEndpoint()
+    .RequireAuthorization(AuthorizationPolicies.AdminOnly);
 
 using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<NpgsqlApplicationDbContext>();
 await dbContext.Database.EnsureCreatedAsync();
 
+await AdminBootstrapper.InitializeAdminUserAndRoleIfNotExists(app);
+
 app.Run();
+return;
+
