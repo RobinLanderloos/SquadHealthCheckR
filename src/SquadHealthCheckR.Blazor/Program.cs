@@ -1,4 +1,5 @@
 using Blazored.LocalStorage;
+using FluentValidation;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -22,6 +23,7 @@ builder.Services.AddScoped(
 builder.Services.AddConfiguration(builder.Configuration);
 
 builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 var baseUrl = builder.Configuration.GetValue<string>($"{Api.SectionName}:{nameof(Api.BaseUrl)}");
 

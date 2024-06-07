@@ -1,0 +1,10 @@
+﻿@if (FieldIdentifier != null && EditContext?.IsValid(FieldIdentifier.Value) == false)
+{
+    @ChildContent
+}
+
+@code {
+    [CascadingParameter] public EditContext? EditContext { get; set; }
+    [EditorRequired] [Parameter] public FieldIdentifier? FieldIdentifier { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

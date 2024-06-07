@@ -1,0 +1,117 @@
+﻿@page "/account/register"
+@layout EmptyLayout
+
+@using FluentValidation
+@using SquadHealthCheckR.Auth
+@using SquadHealthCheckR.Components.Forms
+<div class="hero min-h-screen bg-base-200">
+    <div class="hero-content w-full max-w-lg text-center">
+        <div class="card card-bordered w-full shadow-2xl bg-base-100">
+            <div class="card-title flex justify-center items-center text-center mt-6">
+                <h1 class="text-accent text-2xl">Create your account</h1>
+            </div>
+            <EditForm EditContext="EditContext" OnValidSubmit="RegisterSubmit" FormName="register-form" class="card-body">
+                <FluentValidationValidator></FluentValidationValidator>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Email</span>
+                    </label>
+                    <InputText type="email" placeholder="Email" @bind-Value="Model.Email" class="input input-bordered"/>
+                    <ConditionalValidationAltLabel
+                        FieldIdentifier="EditContext?.Field(nameof(Model.Email))"
+                        For="() => Model.Email">
+                    </ConditionalValidationAltLabel>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Password</span>
+                    </label>
+                    <InputText type="password" placeholder="Password" @bind-Value="Model.Password" class="input input-bordered"/>
+                    <ConditionalValidationAltLabel
+                        FieldIdentifier="EditContext?.Field(nameof(Model.Password))"
+                        For="() => Model.Password">
+                    </ConditionalValidationAltLabel>
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Confirm Password</span>
+                    </label>
+                    <InputText type="password" placeholder="Confirm Password" @bind-Value="Model.ConfirmPassword" class="input input-bordered"/>
+                    <ConditionalValidationAltLabel
+                        FieldIdentifier="EditContext?.Field(nameof(Model.ConfirmPassword))"
+                        For="() => Model.ConfirmPassword">
+                    </ConditionalValidationAltLabel>
+                </div>
+                <div class="flex flex-col w-full">
+                    <div class="flex flex-col md:flex-row w-full justify-between md:flex-wrap">
+                        <button type="submit" class="btn btn-primary md:basis-0 flex-grow w-full md:w-auto">Register</button>
+                    </div>
+                </div>
+                @if (!string.IsNullOrWhiteSpace(RegisterFailed))
+                {
+                    <h1>@RegisterFailed</h1>
+                }
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Inject] public IAccountManagement? AccountManagement { get; set; }
+    [Inject] public NavigationManager? NavigationManager { get; set; }
+    public EditContext? EditContext { get; set; }
+    public string RegisterFailed { get; set; } = string.Empty;
+    private RegisterModel Model { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        EditContext = new EditContext(Model);
+        base.OnInitialized();
+    }
+
+    private async Task RegisterSubmit()
+    {
+        if (AccountManagement == null)
+        {
+            throw new InvalidOperationException("Could not register account");
+        }
+
+        var registerResult = await AccountManagement.RegisterAsync(Model.Email, Model.Password);
+
+        if (!registerResult.Succeeded)
+        {
+            RegisterFailed = registerResult.ErrorList.First();
+
+            return;
+        }
+
+        // Register successful, navigate to email sent page
+        NavigationManager?.NavigateTo("/account/register/confirm-email-sent");
+    }
+
+    public class RegisterModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+
+    public class RegisterModelValidator : AbstractValidator<RegisterModel>
+    {
+        public RegisterModelValidator()
+        {
+            Console.WriteLine("Validating form");
+            RuleFor(x => x.Email)
+                .NotEmpty()
+                .EmailAddress();
+            RuleFor(x => x.Password)
+                .NotEmpty()
+                .MinimumLength(8);
+            RuleFor(x => x.ConfirmPassword)
+                .Equal(x => x.Password)
+                .WithMessage("Passwords do not match");
+        }
+    }
+
+}

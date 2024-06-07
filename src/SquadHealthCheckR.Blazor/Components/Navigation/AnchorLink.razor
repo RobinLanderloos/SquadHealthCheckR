@@ -1,0 +1,16 @@
+﻿<a class="@Class" @onclick="Navigate">
+    @ChildContent
+</a>
+
+@code {
+    [EditorRequired] [Parameter] public string Class { get; set; } = string.Empty;
+    [Parameter] public string Route { get; set; } = "/";
+    [Inject] public NavigationManager? NavigationManager { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private void Navigate()
+    {
+        NavigationManager?.NavigateTo(Route);
+    }
+
+}

@@ -1,0 +1,21 @@
+﻿@using System.Linq.Expressions
+@typeparam TValue
+
+<ConditionalValidationMessage FieldIdentifier="FieldIdentifier">
+    <label class="label text-left">
+        <span class="label-text-alt text-error">
+            <ValidationMessage For="@For"></ValidationMessage>
+        </span>
+    </label>
+</ConditionalValidationMessage>
+
+@code {
+    [EditorRequired]
+    [Parameter]
+    public FieldIdentifier? FieldIdentifier { get; set; }
+
+    [EditorRequired]
+    [Parameter]
+    public Expression<Func<TValue>>? For { get; set; }
+
+}

@@ -1,4 +1,5 @@
 ﻿@using SquadHealthCheckR.Auth
+@using SquadHealthCheckR.Components.Navigation
 <div class="navbar bg-base-100 border-b-2 border-b-gray-600">
     <div class="navbar-start">
         <div class="dropdown">
@@ -56,7 +57,9 @@
         <ThemeSelector></ThemeSelector>
         <AuthorizeView>
             <NotAuthorized>
-                <a class="btn btn-primary ml-2" @onclick="OnLoginClick">Login</a>
+                <AnchorLink Class="btn btn-primary ml-2" Route="/account/login">
+                    Login
+                </AnchorLink>
             </NotAuthorized>
             <Authorized>
                 <div class="dropdown dropdown-hover">
