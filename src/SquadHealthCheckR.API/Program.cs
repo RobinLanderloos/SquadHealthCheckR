@@ -10,6 +10,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using SquadHealthCheckR.API.Auth;
 using SquadHealthCheckR.API.Bootstrapper;
+using SquadHealthCheckR.API.UseCases.SquadMember;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -120,10 +121,17 @@ accountGroup.MapPost("/logout", async (SignInManager<ApplicationUser> signInMana
 app.MapGroup("/session")
     .MapCreateSessionEndpoint()
     .MapDeleteSessionEndpoint()
+    .MapJoinSessionEndpoint()
+    .MapLeaveSessionEndpoint()
+    .RequireAuthorization();
+
+app.MapGroup("/squad-member")
+    .MapGetSquadMemberSessionsEndpoint()
     .RequireAuthorization();
 
 app.MapGroup("/admin")
     .MapGetSessionsEndpoint()
+    .MapDeleteUserEndpoint()
     .RequireAuthorization(AuthorizationPolicies.AdminOnly);
 
 using var scope = app.Services.CreateScope();
