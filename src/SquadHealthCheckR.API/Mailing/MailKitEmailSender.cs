@@ -7,6 +7,7 @@ using SquadHealthCheckR.API.Domain;
 
 namespace SquadHealthCheckR.API.Mailing;
 
+// TODO: Refactor to use an outbox pattern instead
 internal class MailKitEmailSender : IEmailSender<ApplicationUser>
 {
     private readonly EmailOptions _emailOptions;

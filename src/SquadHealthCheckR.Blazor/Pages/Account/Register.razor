@@ -49,7 +49,7 @@
                 </div>
                 @if (!string.IsNullOrWhiteSpace(RegisterFailed))
                 {
-                    <h1>@RegisterFailed</h1>
+                    <h1 class="text-left text-error">@RegisterFailed</h1>
                 }
             </EditForm>
         </div>
@@ -87,7 +87,7 @@
         }
 
         // Register successful, navigate to email sent page
-        NavigationManager?.NavigateTo("/account/register/confirm-email-sent");
+        NavigationManager?.NavigateTo($"/account/confirm-email-sent?Email={Model.Email}");
     }
 
     public class RegisterModel

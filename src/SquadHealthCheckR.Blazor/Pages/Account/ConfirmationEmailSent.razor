@@ -1,0 +1,21 @@
+﻿@page "/account/confirm-email-sent"
+@using SquadHealthCheckR.Components.Navigation
+@layout EmptyLayout
+
+<div class="hero min-h-screen bg-base-200">
+    <div class="hero-content w-full max-w-lg text-center">
+        <div class="card card-bordered w-full shadow-2xl bg-base-100">
+            <div class="card-body flex justify-center items-center text-center">
+                <h1 class="text-content text-2xl">A confirmation email was sent to <span class="text-accent">@Email</span></h1>
+                <AnchorLink Class="btn btn-primary" Route="/">Return to home...</AnchorLink>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    [Parameter]
+    public string Email { get; set; } = string.Empty;
+
+}
