@@ -28,7 +28,7 @@ internal class Session
     public void JoinSquadMember(ApplicationUser member)
     {
         // TODO: Squad member joined DE
-        _squadMembers.Add(member);
+        _squadMembersSessions.Add(new SquadMembersSessions(this, member));
     }
 
     public void RemoveSquadMember(ApplicationUser member)
