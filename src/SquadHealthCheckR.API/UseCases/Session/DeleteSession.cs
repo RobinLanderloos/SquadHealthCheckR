@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SquadHealthCheckR.API.Data;
 
-namespace SquadHealthCheckR.API.UseCases.Admin;
+namespace SquadHealthCheckR.API.UseCases.Session;
 
 internal static class DeleteSession
 {
