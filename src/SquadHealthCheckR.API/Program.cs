@@ -111,7 +111,8 @@ accountGroup.MapPost("/logout", async (SignInManager<ApplicationUser> signInMana
 
 app.MapGroup("/session")
     .MapCreateSessionEndpoint()
-    .MapDeleteSessionEndpoint();
+    .MapDeleteSessionEndpoint()
+    .RequireAuthorization();
 
 app.MapGroup("/admin")
     .MapGetSessionsEndpoint()

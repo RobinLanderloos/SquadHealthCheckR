@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using SquadHealthCheckR.API.Data;
+using SquadHealthCheckR.API.Domain;
 
 namespace SquadHealthCheckR.API.UseCases.Admin;
 
@@ -17,9 +18,9 @@ internal static class GetSessions
         return builder;
     }
 
-    internal record GetSessionsQuery : IRequest<IEnumerable<Domain.Session>>;
+    internal record GetSessionsQuery : IRequest<IEnumerable<SessionDto>>;
 
-    internal class GetSessionsQueryHandler : IRequestHandler<GetSessionsQuery, IEnumerable<Domain.Session>>
+    internal class GetSessionsQueryHandler : IRequestHandler<GetSessionsQuery, IEnumerable<SessionDto>>
     {
         private readonly NpgsqlApplicationDbContext _dbContext;
 
@@ -28,16 +29,20 @@ internal static class GetSessions
             _dbContext = dbContext;
         }
 
-        public async Task<IEnumerable<Domain.Session>> Handle(GetSessionsQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<SessionDto>> Handle(GetSessionsQuery request, CancellationToken cancellationToken)
         {
-            var sessions = await _dbContext.
-                Sessions
-                .Include(x => x.SquadMembers)
-                .Include(x => x.HealthIndicators)
-                .ThenInclude(h => h.Votes)
+            var sessions = await _dbContext.Sessions
+                .Select(s => new SessionDto(
+                    s.Id,
+                    s.Name,
+                    s.SquadMembersSessions.First(sms => sms.Type == SquadMembersSessions.SessionUserType.SquadLeader)
+                        .SquadMemberId,
+                    s.SquadMembersSessions.Where(sms => sms.Type == SquadMembersSessions.SessionUserType.SquadMember).Select(sms => sms.SquadMemberId)))
                 .ToListAsync(cancellationToken);
 
             return sessions;
         }
     }
+
+    internal record SessionDto(Guid Id, string Name, Guid SquadLeaderId, IEnumerable<Guid> SquadMemberIds);
 }

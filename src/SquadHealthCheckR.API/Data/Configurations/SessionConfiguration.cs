@@ -12,9 +12,12 @@ internal class SessionConfiguration : IEntityTypeConfiguration<Session>
             .HasMany(s => s.SquadMembers)
             .WithMany(a => a.Sessions)
             .UsingEntity<SquadMembersSessions>(
-                r => r.HasOne<ApplicationUser>().WithMany().HasForeignKey(e => e.SquadMemberId),
-                l => l.HasOne<Session>().WithMany().HasForeignKey(e => e.SessionId))
-            .HasKey(s => new { s.SessionId, s.SquadMemberId});
+                r => r.HasOne<ApplicationUser>(sms => sms.SquadMember)
+                    .WithMany(u => u.SquadMembersSessions)
+                    .HasForeignKey(e => e.SquadMemberId),
+                l => l.HasOne<Session>(sms => sms.Session)
+                    .WithMany(s => s.SquadMembersSessions)
+                    .HasForeignKey(e => e.SessionId))
+            .HasKey(s => new { s.SessionId, s.SquadMemberId });
     }
-
 }

@@ -20,7 +20,6 @@ internal static class CreateSession
         return builder;
     }
 
-    // ReSharper disable once ClassNeverInstantiated.Global
     internal record CreateSessionCommand(string SessionName) : IRequest<Guid>;
 
     internal class CreateSessionCommandHandler : IRequestHandler<CreateSessionCommand, Guid>

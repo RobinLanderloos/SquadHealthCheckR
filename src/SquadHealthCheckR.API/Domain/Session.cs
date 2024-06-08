@@ -11,6 +11,9 @@ internal class Session
     private readonly List<ApplicationUser> _squadMembers = [];
     public IReadOnlyCollection<ApplicationUser> SquadMembers => _squadMembers.AsReadOnly();
 
+    private readonly List<SquadMembersSessions> _squadMembersSessions = [];
+    public IReadOnlyCollection<SquadMembersSessions> SquadMembersSessions => _squadMembersSessions.AsReadOnly();
+
     // We leave this one open as we won't be operating on any operations on this collection
     public List<HealthIndicator> HealthIndicators { get; private set; } = [];
     public string InviteCode { get; private set; } = "12345";
@@ -18,7 +21,7 @@ internal class Session
     public Session(Guid? id, ApplicationUser squadLeader, string name)
     {
         Id = id ?? Guid.Empty;
-        _squadMembers.Add(squadLeader);
+        _squadMembersSessions.Add(new SquadMembersSessions(this, squadLeader, Domain.SquadMembersSessions.SessionUserType.SquadLeader));
         Name = Guard.Against.NullOrWhiteSpace(name);
     }
 
