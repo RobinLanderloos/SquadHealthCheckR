@@ -6,10 +6,9 @@ using SquadHealthCheckR.API.Domain;
 using SquadHealthCheckR.API.Mailing;
 using SquadHealthCheckR.API.UseCases.Admin;
 using SquadHealthCheckR.API.UseCases.Session;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Mvc;
 using SquadHealthCheckR.API.Auth;
 using SquadHealthCheckR.API.Bootstrapper;
+using SquadHealthCheckR.API.UseCases.Account;
 using SquadHealthCheckR.API.UseCases.SquadMember;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,10 +16,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
     .AddJsonFile("appsettings.logging.json")
     .AddJsonFile("appsettings.secrets.json");
-//https://learn.microsoft.com/en-us/aspnet/core/blazor/security/webassembly/?view=aspnetcore-8.0
-builder.Services.AddSerilog(cfg => { cfg.ReadFrom.Configuration(builder.Configuration); });
 
-var t = builder.Configuration.GetConnectionString("postgres");
+builder.Services.AddSerilog(cfg => { cfg.ReadFrom.Configuration(builder.Configuration); });
 
 builder.Services.AddDbContext<NpgsqlApplicationDbContext>(opt =>
 {
@@ -72,7 +69,6 @@ builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Pro
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -86,37 +82,10 @@ app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
 
-RouteGroupBuilder accountGroup = app.MapGroup("/account");
-accountGroup.MapIdentityApi<ApplicationUser>();
-accountGroup.MapGet("/roles", (ClaimsPrincipal user) =>
-{
-    if (user.Identity is null || !user.Identity.IsAuthenticated)
-    {
-        return Results.Unauthorized();
-    }
-
-    var identity = (ClaimsIdentity)user.Identity;
-    var roles = identity.FindAll(identity.RoleClaimType)
-        .Select(c =>
-            new
-            {
-                c.Issuer,
-                c.OriginalIssuer,
-                c.Type,
-                c.Value,
-                c.ValueType
-            });
-
-    return TypedResults.Json(roles);
-}).RequireAuthorization();
-accountGroup.MapPost("/logout", async (SignInManager<ApplicationUser> signInManager, [FromBody] object? empty) =>
-{
-    if (empty is null) return Results.Unauthorized();
-
-    await signInManager.SignOutAsync();
-
-    return Results.Ok();
-}).RequireAuthorization();
+app.MapGroup("/account")
+    .MapLogoutEndpoint()
+    .MapGetRolesEndpoint()
+    .MapIdentityApi<ApplicationUser>();
 
 app.MapGroup("/session")
     .MapCreateSessionEndpoint()
@@ -141,5 +110,3 @@ await dbContext.Database.EnsureCreatedAsync();
 await AdminBootstrapper.InitializeAdminUserAndRoleIfNotExists(app);
 
 app.Run();
-return;
-
