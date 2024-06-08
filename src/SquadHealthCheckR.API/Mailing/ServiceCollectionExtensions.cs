@@ -8,7 +8,7 @@ internal static class ServiceCollectionExtensions
     public static IServiceCollection AddMailingServices(this IServiceCollection services, IConfiguration configuration)
     {
         services
-            .AddTransient<IEmailSender<ApplicationUser>, MailKitEmailSender>()
+            .AddTransient<IEmailSender<ApplicationUser>, MailKitEmailSender>() // Configure identity email sender
             .Configure<EmailOptions>(configuration.GetSection(EmailOptions.SectionName));
 
        return services;
