@@ -26,7 +26,15 @@ builder.Services.AddDbContext<NpgsqlApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("postgres"));
 });
 
-builder.Services.AddIdentityCore<ApplicationUser>(opt => { opt.SignIn.RequireConfirmedEmail = true; })
+builder.Services.AddIdentityCore<ApplicationUser>(opt =>
+    {
+        opt.SignIn.RequireConfirmedEmail = true;
+        opt.Password.RequireDigit = false;
+        opt.Password.RequiredLength = 8;
+        opt.Password.RequireLowercase = false;
+        opt.Password.RequireNonAlphanumeric = false;
+        opt.Password.RequireUppercase = false;
+    })
     .AddRoles<ApplicationRole>()
     .AddEntityFrameworkStores<NpgsqlApplicationDbContext>()
     .AddApiEndpoints();
