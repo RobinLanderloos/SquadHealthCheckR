@@ -24,6 +24,10 @@ builder.Services.AddDbContext<NpgsqlApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("postgres"));
 });
 
+// TODO: Rework identity to use OID instead
+// https://www.pluralsight.com/courses/asp-dot-net-core-6-securing-oauth-2-openid-connect
+// Or
+// https://documentation.openiddict.com/
 builder.Services.AddIdentityCore<ApplicationUser>(opt =>
     {
         opt.SignIn.RequireConfirmedEmail = true;
