@@ -242,7 +242,7 @@ namespace SquadHealthCheckR.API.Data.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("HealthIndicators");
+                    b.ToTable("HealthIndicators", (string)null);
                 });
 
             modelBuilder.Entity("SquadHealthCheckR.API.Domain.Session", b =>
@@ -261,7 +261,7 @@ namespace SquadHealthCheckR.API.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Sessions", (string)null);
                 });
 
             modelBuilder.Entity("SquadHealthCheckR.API.Domain.SquadMembersSessions", b =>
@@ -279,7 +279,7 @@ namespace SquadHealthCheckR.API.Data.Migrations
 
                     b.HasIndex("SquadMemberId");
 
-                    b.ToTable("SessionApplicationUsers");
+                    b.ToTable("SessionApplicationUsers", (string)null);
                 });
 
             modelBuilder.Entity("SquadHealthCheckR.API.Domain.Vote", b =>
@@ -300,7 +300,7 @@ namespace SquadHealthCheckR.API.Data.Migrations
 
                     b.HasIndex("HealthIndicatorId");
 
-                    b.ToTable("Votes");
+                    b.ToTable("Votes", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

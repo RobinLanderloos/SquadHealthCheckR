@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OpenIddict.Abstractions;
 using Serilog;
 using SquadHealthCheckR.API.Data;
 using SquadHealthCheckR.API.Domain;
@@ -22,11 +23,29 @@ builder.Services.AddSerilog(cfg => { cfg.ReadFrom.Configuration(builder.Configur
 builder.Services.AddDbContext<NpgsqlApplicationDbContext>(opt =>
 {
     opt.UseNpgsql(builder.Configuration.GetConnectionString("postgres"));
+
+    opt.UseOpenIddict<Guid>();
 });
 
+builder.Services.AddOpenIddict()
+    .AddCore(opt =>
+    {
+        opt.UseEntityFrameworkCore()
+            .UseDbContext<NpgsqlApplicationDbContext>()
+            .ReplaceDefaultEntities<Guid>();
+    })
+    .AddServer(opt =>
+    {
+        opt.SetTokenEndpointUris("connect/token");
+        opt.AllowClientCredentialsFlow();
+
+        opt.AddDevelopmentEncryptionCertificate();
+        opt.AddDevelopmentSigningCertificate();
+
+        opt.UseAspNetCore().EnableTokenEndpointPassthrough();
+    });
+
 // TODO: Rework identity to use OID instead
-// https://www.pluralsight.com/courses/asp-dot-net-core-6-securing-oauth-2-openid-connect
-// Or
 // https://documentation.openiddict.com/
 builder.Services.AddIdentityCore<ApplicationUser>(opt =>
     {
@@ -68,6 +87,8 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddControllers();
+
 builder.Services.AddScoped<ICurrentUserAccessor, HttpContextCurrentUserAccessor>();
 builder.Services.AddMediatR(cfg => { cfg.RegisterServicesFromAssembly(typeof(Program).Assembly); });
 
@@ -107,10 +128,38 @@ app.MapGroup("/admin")
     .MapDeleteUserEndpoint()
     .RequireAuthorization(AuthorizationPolicies.AdminOnly);
 
+app.MapControllers();
+
 using var scope = app.Services.CreateScope();
 var dbContext = scope.ServiceProvider.GetRequiredService<NpgsqlApplicationDbContext>();
 await dbContext.Database.EnsureCreatedAsync();
+await RegisterWasm(app);
 
 await AdminBootstrapper.InitializeAdminUserAndRoleIfNotExists(app);
 
 app.Run();
+return;
+
+async Task RegisterWasm(WebApplication webApp)
+{
+    using var serviceScope = webApp.Services.CreateScope();
+
+    var context = serviceScope.ServiceProvider.GetRequiredService<NpgsqlApplicationDbContext>();
+    await context.Database.EnsureCreatedAsync();
+
+    var manager = serviceScope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+
+    if (await manager.FindByClientIdAsync("service-worker") is null)
+    {
+        await manager.CreateAsync(new OpenIddictApplicationDescriptor
+        {
+            ClientId = "wasm",
+            ClientSecret = "388D45FA-B38B-4988-BA59-B197D422C507",
+            Permissions =
+            {
+                OpenIddictConstants.Permissions.Endpoints.Token,
+                OpenIddictConstants.Permissions.GrantTypes.ClientCredentials
+            }
+        });
+    }
+}
